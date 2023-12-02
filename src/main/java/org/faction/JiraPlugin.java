@@ -1,9 +1,11 @@
 package org.faction;
 import java.util.Base64;
+
 import java.util.List;
 
-import com.fuse.elements.Assessment;
-import com.fuse.elements.Vulnerability;
+import com.faction.elements.Assessment;
+import com.faction.elements.CustomField;
+import com.faction.elements.Vulnerability;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,31 +16,73 @@ import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-public class JiraPlugin implements com.fuse.extender.AssessmentManager{
+
+/*
+ * This is an example Jira Plugin to be used with faction. 
+ * This Plugin has 3 requirements:
+ * 
+ * 1. Must ensure your pom.xml file is updated to include this 
+ *    package in the manifest. This is is controlled by the 
+ *    Import-Libary directive in the maven-assembly-plugin 
+ * 
+ *    Example: <Import-Library>org.faction.JiraPlugin</Import-Library>
+ *    
+ * 2. You must set the Environment Variables JIRA_HOST and 
+ *    JIRA_API_KEY in your tomcat environment. 
+ * 
+ * 3. Set the Jira Project Name using a Custom Field in Faction. 
+ *    This is added in admin settings. (Faction->admin->settings)
+ *    The name should be "Jira Project", 'variable' can be what ever
+ *    you want. Variable names are only used for report generation.   
+ */
+public class JiraPlugin implements com.faction.extender.AssessmentManager{
 
 	@Override
 	public Object[] assessmentChange(Assessment assessment, List<Vulnerability> vulns, Operation opcode) {
 		
-		if(opcode == Operation.Finalize) {
-			//Integration into vulnerability management system
+		System.out.println("Running Assessment Manager");
+		String project ="KAN";  //Default Jira Project Name.
+		
+		
+		List<CustomField> fields = assessment.getCustomFields(); // Custom Fields override the default Jira Project Name
+		if(fields != null) {
+			for(CustomField field : fields) {
+				System.out.println(field.getType().getKey());
+				// 'Jira Project' is the Name of the Custom Field. You could name it anything as long as it matches here
+				if(field.getType().getKey().equals("Jira Project")) { 
+					project = field.getValue();
+					break;
+				}
+			}
+			
+		}
+		System.out.println("Configured for " + project);
+		
+		if(opcode == Operation.Finalize) { // We only want to run when an assessment is finalized
 			for(Vulnerability vuln : vulns) {
-				//this can update vulns and send the updated values back into Faction
-				String issueId = sendVulnerbilityToJira(vuln);
+				// This can update Faction with the Jira Tracking Id
+				String issueId = sendVulnerbilityToJira(vuln, project);
 				if(issueId != null) {
 					vuln.setTracking(issueId);
 				}
 			}
 		}
+		//return the assessment and updated vulns back to Faction;
 		return new Object [] {assessment, vulns};
 	}
 	
-	public String sendVulnerbilityToJira(Vulnerability vuln) {
+	
+	/*
+	 * This Utility function handles creating the Jira Issue and sending 
+	 * the correct JSON to the Jira Server. 
+	 */
+	public String sendVulnerbilityToJira(Vulnerability vuln, String projectName) {
 		
 		JSONObject issueType = new JSONObject();
 		issueType.put("name", "Bug");
-		
+	
 		JSONObject project = new JSONObject();
-		project.put("key", "KAN");
+		project.put("key", projectName);
 		
 		JSONObject fields = new JSONObject();
 		fields.put("summary", vuln.getName());
@@ -51,6 +95,8 @@ public class JiraPlugin implements com.fuse.extender.AssessmentManager{
 		String jiraHost = System.getenv("JIRA_HOST");
 		String jiraURL = String.format("%s%s", jiraHost, "rest/api/2/issue/");
 		return httpPost(jiraURL, issue);
+		
+		
 		
 	}
 	

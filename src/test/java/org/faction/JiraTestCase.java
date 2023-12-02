@@ -1,10 +1,9 @@
 package org.faction;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.faction.JiraPlugin;
 import org.junit.jupiter.api.Test;
 
-import com.fuse.elements.Vulnerability;
+import com.faction.elements.Vulnerability;
 
 class JiraTestCase {
 
@@ -14,7 +13,7 @@ class JiraTestCase {
 		Vulnerability vuln = new Vulnerability();
 		vuln.setDescription("test issue");
 		vuln.setName("Faction Vulnerability");
-		String jiraIssueId = plugin.sendVulnerbilityToJira(vuln);
+		String jiraIssueId = plugin.sendVulnerbilityToJira(vuln, "KAN");
 		assertTrue(jiraIssueId != null);
 		assertTrue(jiraIssueId.matches("[0-9]+"));
 		
