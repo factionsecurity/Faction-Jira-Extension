@@ -6,22 +6,11 @@
 	<artifactId>JiraPlugin</artifactId>
 	<version>0.0.1</version>
 	<name>JiraPlugin</name>
-	<repositories>
-		<repository>
-			<id>FactionExtender</id>
-			<url>
-				https://github.com/factionsecurity/faction-extender/raw/mvn-repo/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>FactionExtender</groupId>
-			<artifactId>FactionExtender</artifactId>
-			<version>1.1</version>
+			<groupId>FactionSecurity</groupId>
+			<artifactId>faction-extender</artifactId>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.clerezza.ext</groupId>
@@ -54,9 +43,11 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					<archive> 
+					<archive>
 						<manifestEntries>
-							<Import-Library>org.faction.JiraPlugin</Import-Library>
+							<Title>JiraPlugin</Title>
+							<Author>Josh Summitt</Author>
+							<URL>https://www.factionsecurity.com</URL>
 						</manifestEntries>
 					</archive>
 				</configuration>

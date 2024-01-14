@@ -6,6 +6,7 @@ import java.util.List;
 import com.faction.elements.Assessment;
 import com.faction.elements.CustomField;
 import com.faction.elements.Vulnerability;
+import com.faction.extender.AssessmentManagerResult;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -38,7 +39,7 @@ import org.json.simple.parser.JSONParser;
 public class JiraPlugin implements com.faction.extender.AssessmentManager{
 
 	@Override
-	public Object[] assessmentChange(Assessment assessment, List<Vulnerability> vulns, Operation opcode) {
+	public AssessmentManagerResult assessmentChange(Assessment assessment, List<Vulnerability> vulns, Operation opcode) {
 		
 		System.out.println("Running Assessment Manager");
 		String project ="KAN";  //Default Jira Project Name.
@@ -68,7 +69,10 @@ public class JiraPlugin implements com.faction.extender.AssessmentManager{
 			}
 		}
 		//return the assessment and updated vulns back to Faction;
-		return new Object [] {assessment, vulns};
+		AssessmentManagerResult result = new AssessmentManagerResult();
+		result.setAssessment(assessment);
+		result.setVulnerabilities(vulns);
+		return result;
 	}
 	
 	
@@ -120,6 +124,8 @@ public class JiraPlugin implements com.faction.extender.AssessmentManager{
 		    	JSONObject jsonObj = (JSONObject) parser.parse(json);
 		    	return (String) jsonObj.get("id");
 		    }else {
+		    	System.out.println(response.getStatusLine().getStatusCode());
+		    	System.out.println(EntityUtils.toString(response.getEntity()));
 		    	return null;
 		    }
 		} catch (Exception ex) {
