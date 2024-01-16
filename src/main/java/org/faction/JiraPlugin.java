@@ -4,9 +4,10 @@ import java.util.Base64;
 import java.util.List;
 
 import com.faction.elements.Assessment;
+import com.faction.elements.BaseExtension;
 import com.faction.elements.CustomField;
 import com.faction.elements.Vulnerability;
-import com.faction.extender.AssessmentManagerResult;
+import com.faction.elements.results.AssessmentManagerResult;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -19,24 +20,27 @@ import org.json.simple.parser.JSONParser;
 
 
 /*
- * This is an example Jira Plugin to be used with faction. 
- * This Plugin has 3 requirements:
+ * This is an example Jira Extension to be used with Faction. 
+ * This Extension has 3 requirements:
  * 
- * 1. Must ensure your pom.xml file is updated to include this 
- *    package in the manifest. This is is controlled by the 
- *    Import-Libary directive in the maven-assembly-plugin 
- * 
- *    Example: <Import-Library>org.faction.JiraPlugin</Import-Library>
+ * 1. Must ensure your pom.xml includes the following directives:
+ * 			<manifestEntries>
+ *	 			<Title>Your Title</Title>
+ *				<Version>${project.version}</Version>
+ *				<Author>Your Name</Author>
+ *				<URL>Your URL</URL>
+ *			</manifestEntries> 
  *    
- * 2. You must set the Environment Variables JIRA_HOST and 
- *    JIRA_API_KEY in your tomcat environment. 
+ * 2. Set your extension defualt configs. These are settings that can 
+ *    be configured in Faction's AppStore Dashboard. The default settings 
+ *    are initialized here (src/main/resources/configs.json) 
  * 
  * 3. Set the Jira Project Name using a Custom Field in Faction. 
  *    This is added in admin settings. (Faction->admin->settings)
  *    The name should be "Jira Project", 'variable' can be what ever
  *    you want. Variable names are only used for report generation.   
  */
-public class JiraPlugin implements com.faction.extender.AssessmentManager{
+public class JiraPlugin extends BaseExtension implements com.faction.extender.AssessmentManager{
 
 	@Override
 	public AssessmentManagerResult assessmentChange(Assessment assessment, List<Vulnerability> vulns, Operation opcode) {
@@ -96,7 +100,8 @@ public class JiraPlugin implements com.faction.extender.AssessmentManager{
 		
 		JSONObject issue = new JSONObject();
 		issue.put("fields", fields);
-		String jiraHost = System.getenv("JIRA_HOST");
+		// Get Extension Configs
+		String jiraHost = this.getConfigs().get("Jira Host");
 		String jiraURL = String.format("%s%s", jiraHost, "rest/api/2/issue/");
 		return httpPost(jiraURL, issue);
 		
@@ -110,7 +115,10 @@ public class JiraPlugin implements com.faction.extender.AssessmentManager{
 	
 	private String httpPost(String url, JSONObject payload) {
 		HttpClient httpClient = HttpClientBuilder.create().build();
-		String apiKey = System.getenv("JIRA_API_KEY");
+		
+		// Get Extension Configs.
+		String apiKey = this.getConfigs().get("Jira API Key");
+		
 		try {
 		    HttpPost request = new HttpPost(url);
 		    StringEntity params = new StringEntity(payload.toJSONString());
