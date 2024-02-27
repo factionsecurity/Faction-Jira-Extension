@@ -85,26 +85,30 @@ public class JiraPlugin extends BaseExtension implements com.faction.extender.As
 	 * the correct JSON to the Jira Server. 
 	 */
 	public String sendVulnerbilityToJira(Vulnerability vuln, String projectName) {
+		try {
 		
-		JSONObject issueType = new JSONObject();
-		issueType.put("name", "Bug");
-	
-		JSONObject project = new JSONObject();
-		project.put("key", projectName);
+			JSONObject issueType = new JSONObject();
+			issueType.put("name", "Bug");
 		
-		JSONObject fields = new JSONObject();
-		fields.put("summary", vuln.getName());
-		fields.put("description", vuln.getDescription());
-		fields.put("project", project);
-		fields.put("issuetype", issueType);
-		
-		JSONObject issue = new JSONObject();
-		issue.put("fields", fields);
-		// Get Extension Configs
-		String jiraHost = this.getConfigs().get("Jira Host");
-		String jiraURL = String.format("%s%s", jiraHost, "rest/api/2/issue/");
-		return httpPost(jiraURL, issue);
-		
+			JSONObject project = new JSONObject();
+			project.put("key", projectName);
+			
+			JSONObject fields = new JSONObject();
+			fields.put("summary", vuln.getName());
+			fields.put("description", vuln.getDescription());
+			fields.put("project", project);
+			fields.put("issuetype", issueType);
+			
+			JSONObject issue = new JSONObject();
+			issue.put("fields", fields);
+			// Get Extension Configs
+			String jiraHost = this.getConfigs().get("Jira Host");
+			String jiraURL = String.format("%s%s", jiraHost, "rest/api/2/issue/");
+			return httpPost(jiraURL, issue);
+		}catch(Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
 		
 		
 	}
@@ -118,12 +122,13 @@ public class JiraPlugin extends BaseExtension implements com.faction.extender.As
 		
 		// Get Extension Configs.
 		String apiKey = this.getConfigs().get("Jira API Key");
+		String email = this.getConfigs().get("Jira Email");
 		
 		try {
 		    HttpPost request = new HttpPost(url);
 		    StringEntity params = new StringEntity(payload.toJSONString());
 		    request.addHeader("content-type", "application/json");
-		    request.addHeader("Authorization", base64(apiKey));
+		    request.addHeader("Authorization", base64(email + ":" + apiKey));
 		    request.setEntity(params);
 		    HttpResponse response = httpClient.execute(request);
 		    if( response.getStatusLine().getStatusCode() == 201) {

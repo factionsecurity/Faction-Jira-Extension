@@ -1,4 +1,14 @@
 {
-	"Jira Host" : "https://yourhost.com",
-	"Jira API Key" : "your api key"
+	"Jira Host" : {
+		"type": "text",
+		"value": "https://yourhost.com"
+		},
+	"Jira API Key" : {
+		"type": "password",
+		"value": "your api key"
+		},
+	"Jira Email": {
+		"type" : "text",
+		"value": "your@email.com"
+	}
 }
