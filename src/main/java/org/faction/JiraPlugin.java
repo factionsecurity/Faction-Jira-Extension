@@ -8,7 +8,6 @@ import com.faction.elements.BaseExtension;
 import com.faction.elements.CustomField;
 import com.faction.elements.Vulnerability;
 import com.faction.elements.results.AssessmentManagerResult;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -19,27 +18,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 
-/*
- * This is an example Jira Extension to be used with Faction. 
- * This Extension has 3 requirements:
- * 
- * 1. Must ensure your pom.xml includes the following directives:
- * 			<manifestEntries>
- *	 			<Title>Your Title</Title>
- *				<Version>${project.version}</Version>
- *				<Author>Your Name</Author>
- *				<URL>Your URL</URL>
- *			</manifestEntries> 
- *    
- * 2. Set your extension defualt configs. These are settings that can 
- *    be configured in Faction's AppStore Dashboard. The default settings 
- *    are initialized here (src/main/resources/configs.json) 
- * 
- * 3. Set the Jira Project Name using a Custom Field in Faction. 
- *    This is added in admin settings. (Faction->admin->settings)
- *    The name should be "Jira Project", 'variable' can be what ever
- *    you want. Variable names are only used for report generation.   
- */
+
 public class JiraPlugin extends BaseExtension implements com.faction.extender.AssessmentManager{
 
 	@Override
@@ -77,9 +56,8 @@ public class JiraPlugin extends BaseExtension implements com.faction.extender.As
 		result.setAssessment(assessment);
 		result.setVulnerabilities(vulns);
 		return result;
+
 	}
-	
-	
 	/*
 	 * This Utility function handles creating the Jira Issue and sending 
 	 * the correct JSON to the Jira Server. 
@@ -109,6 +87,8 @@ public class JiraPlugin extends BaseExtension implements com.faction.extender.As
 			ex.printStackTrace();
 			return null;
 		}
+		
+		
 		
 		
 	}
